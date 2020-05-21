@@ -1,5 +1,5 @@
 import { css } from 'styled-components';
-import { breakpoint, util } from 'theme';
+import { util } from 'theme';
 
 const navTabsStyles = css(({ theme }) => {
   const borderColor = util.colorLevel(theme.colors.variant.info, -5);
@@ -53,7 +53,7 @@ const navTabsStyles = css(({ theme }) => {
         }
       }
 
-      @media (min-width: ${breakpoint.min.sm}) {
+      @media (min-width: ${theme.breakpoints.min.sm}) {
         > li > a {
           border-bottom-color: ${borderColor};
         }

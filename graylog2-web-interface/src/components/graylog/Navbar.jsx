@@ -3,7 +3,7 @@ import { Navbar as BootstrapNavbar } from 'react-bootstrap';
 import styled, { css } from 'styled-components';
 import chroma from 'chroma-js';
 
-import { breakpoint, util } from 'theme';
+import { util } from 'theme';
 
 const Navbar = styled(BootstrapNavbar)(({ theme }) => css`
   &.navbar-default {
@@ -64,7 +64,7 @@ const Navbar = styled(BootstrapNavbar)(({ theme }) => css`
         }
       }
 
-      @media (max-width: ${breakpoint.max.sm}) {
+      @media (max-width: ${theme.breakpoints.max.sm}) {
         .open .dropdown-menu {
           > li > a,
           > li > .btn-link {
@@ -200,7 +200,7 @@ const Navbar = styled(BootstrapNavbar)(({ theme }) => css`
         }
       }
 
-      @media (max-width: ${breakpoint.max.sm}) {
+      @media (max-width: ${theme.breakpoints.max.sm}) {
         .open .dropdown-menu {
           > .dropdown-header {
             border-color: ${theme.colors.gray[10]};
