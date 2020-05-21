@@ -57,7 +57,7 @@ class SavedSearchControls extends React.Component<Props, State> {
       username: PropTypes.string.isRequired,
     }).isRequired,
     theme: PropTypes.shape({
-      color: PropTypes.object,
+      colors: PropTypes.object,
     }).isRequired,
   };
 

@@ -38,7 +38,7 @@ ColorLabel.propTypes = {
   text: PropTypes.oneOfType([PropTypes.string, PropTypes.element]),
   size: PropTypes.oneOf(['normal', 'small', 'xsmall']),
   theme: PropTypes.shape({
-    color: PropTypes.object,
+    colors: PropTypes.object,
   }).isRequired,
 };
 

@@ -66,7 +66,7 @@ const JvmHeapUsage = createReactClass({
 
   mixins: [Reflux.connect(MetricsStore)],
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     const { nodeId } = this.props;
 
     this.metricNames = {
