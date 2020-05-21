@@ -3,36 +3,36 @@ import { css } from 'styled-components';
 
 import { util } from 'theme';
 
-const buttonStyles = ({ color }) => {
+const buttonStyles = ({ colors }) => {
   const variants = {
-    danger: color.variant.danger,
-    default: color.gray[90],
-    info: color.variant.info,
+    danger: colors.variant.danger,
+    default: colors.gray[90],
+    info: colors.variant.info,
     link: 'rgba(255, 255, 255, 0)',
-    primary: color.variant.primary,
-    success: color.variant.success,
-    warning: color.variant.warning,
+    primary: colors.variant.primary,
+    success: colors.variant.success,
+    warning: colors.variant.warning,
   };
 
-  const mixColor = (originalColor) => chroma.mix(originalColor, color.global.textDefault, 0.15);
+  const mixColor = (originalColor) => chroma.mix(originalColor, colors.global.textDefault, 0.15);
 
   return Object.keys(variants).map((variant) => {
     const variantColor = variants[variant];
     const isLink = variant === 'link';
 
-    const buttonAdjustColor = chroma(variantColor).luminance() > 0.5 ? color.global.textDefault : color.global.textAlt;
+    const buttonAdjustColor = chroma(variantColor).luminance() > 0.5 ? colors.global.textDefault : colors.global.textAlt;
 
     const defaultBackground = variantColor;
     const defaultBorder = isLink ? variants.link : chroma.mix(variantColor, buttonAdjustColor, 0.05);
-    const defaultColor = isLink ? color.global.link : util.contrastingColor(defaultBackground);
+    const defaultColor = isLink ? colors.global.link : util.contrastingColor(defaultBackground);
 
     const activeBackground = isLink ? variants.link : chroma.mix(variantColor, buttonAdjustColor, 0.10);
     const activeBorder = isLink ? variants.link : chroma.mix(variantColor, buttonAdjustColor, 0.15);
-    const activeColor = isLink ? color.global.linkHover : util.contrastingColor(activeBackground);
+    const activeColor = isLink ? colors.global.linkHover : util.contrastingColor(activeBackground);
 
     const disabledBackground = isLink ? variants.link : chroma.mix(variantColor, buttonAdjustColor, 0.20);
     const disabledBorder = isLink ? variants.link : chroma.mix(variantColor, buttonAdjustColor, 0.15);
-    const disabledColor = isLink ? color.global.link : util.contrastingColor(disabledBackground, 'AA');
+    const disabledColor = isLink ? colors.global.link : util.contrastingColor(disabledBackground, 'AA');
 
     return css`
       &.btn-${variant} {
