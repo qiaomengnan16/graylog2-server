@@ -1,12 +1,6 @@
 import { createGlobalStyle, css } from 'styled-components';
 
-import 'opensans-npm-webfont/open_sans.css';
-import 'opensans-npm-webfont/open_sans_italic.css';
-import 'opensans-npm-webfont/open_sans_bold.css';
-
 import { util } from 'theme';
-
-const fontFamily = '"Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 const GlobalThemeStyles = createGlobalStyle(({ theme }) => css`
   #editor {
@@ -16,7 +10,7 @@ const GlobalThemeStyles = createGlobalStyle(({ theme }) => css`
   body {
     background-color: ${theme.color.global.background};
     color: ${theme.color.global.textDefault};
-    font-family: ${fontFamily};
+    font-family: ${theme.fonts.family.body};
     font-size: 12px;
     overflow-x: hidden;
     margin-top: 50px;
@@ -88,7 +82,7 @@ const GlobalThemeStyles = createGlobalStyle(({ theme }) => css`
   select.form-control,
   textarea.form-control {
     color: ${theme.color.gray[30]};
-    font-family: ${fontFamily};
+    font-family: ${theme.fonts.family.body};
 
     &:hover {
       border-color: hsl(0, 0%, 70%);
@@ -429,7 +423,7 @@ const GlobalThemeStyles = createGlobalStyle(({ theme }) => css`
     margin-top: 5px;
     margin-bottom: 0;
     padding: 9px;
-    font-family: monospace;
+    font-family: ${theme.fonts.family.monospace};
     word-wrap: break-word;
   }
 
@@ -501,7 +495,7 @@ const GlobalThemeStyles = createGlobalStyle(({ theme }) => css`
   }
 
   .btn-text {
-    font-family: ${fontFamily};
+    font-family: ${theme.fonts.family.body};
     font-size: 12px;
     padding: 0;
     vertical-align: baseline;
