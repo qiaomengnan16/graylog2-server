@@ -12,7 +12,7 @@ import IfSearch from 'views/components/search/IfSearch';
 import { widgetDefinition } from 'views/logic/Widgets';
 import { WidgetActions } from 'views/stores/WidgetStore';
 import { TitlesActions, TitleTypes } from 'views/stores/TitlesStore';
-import { ViewStore } from 'views/stores/ViewStore';
+import { ViewActions, ViewStore } from 'views/stores/ViewStore';
 import type { ViewStoreState } from 'views/stores/ViewStore';
 import { RefreshActions } from 'views/stores/RefreshStore';
 import FieldTypeMapping from 'views/logic/fieldtypes/FieldTypeMapping';
@@ -30,6 +30,7 @@ import type { TimeRange } from 'views/logic/queries/Query';
 import MessagesWidget from 'views/logic/widgets/MessagesWidget';
 import VisualizationConfig from 'views/logic/aggregationbuilder/visualizations/VisualizationConfig';
 import CSVExportModal from 'views/components/searchbar/csvexport/CSVExportModal';
+import MoveWidgetToTab from 'views/logic/views/MoveWidgetToTab';
 
 import WidgetFrame from './WidgetFrame';
 import WidgetHeader from './WidgetHeader';
@@ -46,6 +47,7 @@ import WidgetColorContext from './WidgetColorContext';
 import IfInteractive from '../dashboard/IfInteractive';
 import InteractiveContext from '../contexts/InteractiveContext';
 import CopyToDashboard from './CopyToDashboardForm';
+import MoveWidgetToTabForm from './MoveWidgetToTab';
 import WidgetErrorBoundary from './WidgetErrorBoundary';
 import IfDashboard from '../dashboard/IfDashboard';
 import ReplaySearchButton from './ReplaySearchButton';
@@ -71,6 +73,7 @@ type State = {
   oldWidget?: WidgetModel,
   showCopyToDashboard: boolean,
   showCsvExport: boolean,
+  showMoveWidgetToTab: boolean,
 };
 
 export type Result = {
@@ -138,6 +141,7 @@ class Widget extends React.Component<Props, State> {
       loading: false,
       showCopyToDashboard: false,
       showCsvExport: false,
+      showMoveWidgetToTab: false,
     };
     if (editing) {
       this.state = { ...this.state, oldWidget: props.widget };
@@ -163,6 +167,39 @@ class Widget extends React.Component<Props, State> {
     this.setState(({ showCopyToDashboard }) => ({ showCopyToDashboard: !showCopyToDashboard }));
   };
 
+  _onToggleMoveWidgetToTab = () => {
+    this.setState(({ showMoveWidgetToTab }) => ({ showMoveWidgetToTab: !showMoveWidgetToTab }));
+  };
+
+  _updateDashboardWithNewSearch = (dashboard: View, dashboardId: string) => ({ search: newSearch }) => {
+    const newDashboard = dashboard.toBuilder().search(newSearch).build();
+    ViewManagementActions.update(newDashboard).then(() => {
+      browserHistory.push(Routes.pluginRoute('DASHBOARDS_VIEWID')(dashboardId));
+    });
+  };
+
+  _onMoveWidgetToTab = (widgetId, queryId) => {
+    const { view } = this.props;
+    const { view: activeView } = view;
+
+    if (!queryId) {
+      return;
+    }
+
+    const newDashboard = MoveWidgetToTab(widgetId, queryId, activeView);
+    if (newDashboard) {
+      SearchActions.create(newDashboard.search).then((searchResponse) => {
+        const updatedDashboard = newDashboard.toBuilder().search(searchResponse.search).build();
+        ViewActions.update(updatedDashboard).then(() => {
+          this._onToggleMoveWidgetToTab();
+          ViewActions.selectQuery(queryId).then(() => {
+            SearchActions.executeWithCurrentState();
+          });
+        });
+      });
+    }
+  };
+
   _onCopyToDashboard = (widgetId: string, dashboardId: ?string): void => {
     const { view } = this.props;
     const { view: activeView } = view;
@@ -171,18 +208,11 @@ class Widget extends React.Component<Props, State> {
       return;
     }
 
-    const updateDashboardWithNewSearch = (dashboard: View) => ({ search: newSearch }) => {
-      const newDashboard = dashboard.toBuilder().search(newSearch).build();
-      ViewManagementActions.update(newDashboard).then(() => {
-        browserHistory.push(Routes.pluginRoute('DASHBOARDS_VIEWID')(dashboardId));
-      });
-    };
-
     const addWidgetToDashboard = (dashboard: View) => (searchJson) => {
       const search = Search.fromJSON(searchJson);
       const newDashboard = CopyWidgetToDashboard(widgetId, activeView, dashboard.toBuilder().search(search).build());
       if (newDashboard && newDashboard.search) {
-        SearchActions.create(newDashboard.search).then(updateDashboardWithNewSearch(newDashboard));
+        SearchActions.create(newDashboard.search).then(this._updateDashboardWithNewSearch(newDashboard, dashboardId));
       }
     };
 
@@ -262,7 +292,7 @@ class Widget extends React.Component<Props, State> {
   // TODO: Clean up different code paths for normal/edit modes
   render() {
     const { id, widget, fields, onSizeChange, title, position, onPositionsChange, view } = this.props;
-    const { editing, loading, showCopyToDashboard, showCsvExport } = this.state;
+    const { editing, loading, showCopyToDashboard, showCsvExport, showMoveWidgetToTab } = this.state;
     const { config, type } = widget;
     const visualization = this.visualize();
     if (editing) {
@@ -319,6 +349,9 @@ class Widget extends React.Component<Props, State> {
                     <IfSearch>
                       <MenuItem onSelect={this._onToggleCopyToDashboard}>Copy to Dashboard</MenuItem>
                     </IfSearch>
+                    <IfDashboard>
+                      <MenuItem onSelect={this._onToggleMoveWidgetToTab}>Move to Tab</MenuItem>
+                    </IfDashboard>
                     <MenuItem divider />
                     <MenuItem onSelect={() => this._onDelete(widget)}>Delete</MenuItem>
                   </WidgetActionDropdown>
@@ -328,6 +361,12 @@ class Widget extends React.Component<Props, State> {
                                      onCancel={this._onToggleCopyToDashboard} />
                   )}
                   {showCsvExport && <CSVExportModal view={view.view} directExportWidgetId={widget.id} closeModal={this._onToggleCSVExport} />}
+                  {showMoveWidgetToTab && (
+                    <MoveWidgetToTabForm view={view.view}
+                                         widgetId={widget.id}
+                                         onCancel={this._onToggleMoveWidgetToTab}
+                                         onSubmit={this._onMoveWidgetToTab} />
+                  )}
                 </IfInteractive>
               </WidgetHeader>
             )}
